@@ -1,27 +1,46 @@
+// src/application/helpers/generate-pdf/nfe/load-fontes.ts
 import path from 'path';
+import type PDFKit from 'pdfkit';
 
 export function loadFonts(doc: PDFKit.PDFDocument): void {
-  const diretorioDeFontes = path.join(__dirname, './../fontes');
-  const timesNewRoman = path.join(diretorioDeFontes, 'Times New Roman.ttf');
-  const timesNewRomanNegrito = path.join(diretorioDeFontes, 'Times New Roman Bold.ttf');
-  const timesNewRomanItalico = path.join(diretorioDeFontes, 'Times New Roman Italic.ttf');
-  const timesNewRomanNegritoItalico = path.join(diretorioDeFontes, 'Times New Roman Bold Italic.ttf');
+  // process.cwd() → /user/projeto/sgi-app
+  const fontDir = path.join(process.cwd(), 'fontes');
 
-  doc.registerFont('normal', timesNewRoman);
-  doc.registerFont('negrito', timesNewRomanNegrito);
-  doc.registerFont('italico', timesNewRomanItalico);
-  doc.registerFont('negrito-italico', timesNewRomanNegritoItalico);
+  doc.registerFont(
+    'normal',
+    path.join(fontDir, 'Times New Roman.ttf')
+  );
+  doc.registerFont(
+    'negrito',
+    path.join(fontDir, 'Times New Roman Bold.ttf')
+  );
+  doc.registerFont(
+    'italico',
+    path.join(fontDir, 'Times New Roman Italic.ttf')
+  );
+  doc.registerFont(
+    'negrito-italico',
+    path.join(fontDir, 'Times New Roman Bold Italic.ttf')
+  );
 }
 
 export function loadFontsNFCe(doc: PDFKit.PDFDocument): void {
-  const diretorioDeFontes = path.join(__dirname, './../fontes/roboto-condensed');
-  const normal = path.join(diretorioDeFontes, 'RobotoCondensed-Regular.ttf');
-  const negrito = path.join(diretorioDeFontes, 'RobotoCondensed-Bold.ttf');
-  const italico = path.join(diretorioDeFontes, 'RobotoCondensed-Italic.ttf');
-  const negritoItalico = path.join(diretorioDeFontes, 'RobotoCondensed-BoldItalic.ttf');
+  const fontDir = path.join(process.cwd(), 'fontes', 'roboto-condensed');
 
-  doc.registerFont('normal', normal);
-  doc.registerFont('negrito', negrito);
-  doc.registerFont('italico', italico);
-  doc.registerFont('negrito-italico', negritoItalico);
+  doc.registerFont(
+    'normal',
+    path.join(fontDir, 'RobotoCondensed-Regular.ttf')
+  );
+  doc.registerFont(
+    'negrito',
+    path.join(fontDir, 'RobotoCondensed-Bold.ttf')
+  );
+  doc.registerFont(
+    'italico',
+    path.join(fontDir, 'RobotoCondensed-Italic.ttf')
+  );
+  doc.registerFont(
+    'negrito-italico',
+    path.join(fontDir, 'RobotoCondensed-BoldItalic.ttf')
+  );
 }
