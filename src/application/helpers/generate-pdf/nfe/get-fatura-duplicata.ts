@@ -1,11 +1,14 @@
 import { format, parseISO } from 'date-fns';
 import { formatNumber } from '../../../../domain/use-cases/utils';
 import type { GeneratePdf } from '../../../../types';
-import { DEFAULT_NFE } from './default';
-import { linhaHorizontal } from './linha-horizontal';
-import { linhaVertical } from './linha-vertical';
 import { secao } from './secao';
 
+/**
+ * Desenha a seção de Fatura e duplicatas em caixas separadas.
+ * Cada duplicata exibe três linhas: Núm., Venc. e Valor.
+ * Cabeçalhos alinhados à esquerda; valores alinhados à direita.
+ * Espaçamento entre caixas definido por `gap`.
+ */
 export function getFaturaDuplicata({
   y,
   doc,
@@ -17,60 +20,80 @@ export function getFaturaDuplicata({
   larguraDoFormulario,
   cobr
 }: GeneratePdf.InputFaturaDuplicata): number {
-  if (cobr !== undefined && Object.keys(cobr).length > 0) {
-    secao({ doc, value: 'FATURA / DUPLICATA', x: 1.5, y: y + 12, largura: 0, ajusteX, ajusteY, margemEsquerda, margemTopo });
+  if (!cobr || Object.keys(cobr).length === 0) {
+    return doc.y;
+  }
 
-    if (cobr.fat !== undefined) {
+  // 1) Cabeçalho da seção
+  secao({
+    doc,
+    value: 'FATURA / DUPLICATA',
+    x: 1.0,
+    y: y + 12,
+    largura: 0,
+    ajusteX,
+    ajusteY,
+    margemEsquerda,
+    margemTopo
+  });
+
+  // 3) Caixas de Duplicatas
+  if (cobr.dup && cobr.dup.length > 0) {
+    const duplicatas = cobr.dup;
+    const fontSize = 8;
+    const padding = 4;
+    const gap = 4; // espaço entre caixas
+
+    // medir largura máxima de conteúdo (número, data e valor)
+
+    const colWidth = 90
+
+    const tableTop = y + 30;
+    const rowHeight = fontSize + 2;
+    const boxHeight = rowHeight * 3 + padding * 2;
+
+    duplicatas.forEach((dup, idx) => {
+      const cellX = margemEsquerda + idx * (colWidth + gap);
+
+      // 3.1) Desenha caixa
       doc
-        .font('negrito')
-        .fillColor(DEFAULT_NFE.corDoTitulo)
-        .fontSize(8)
-        .text('Número da Fatura:', 5, y + 24, {
-          width: larguraDoFormulario - 5,
-          align: 'justify',
-          lineGap: -1.5,
-          continued: true
-        })
-        .font('normal')
-        .text(cobr.fat.nFat, { continued: true })
-        .font('negrito')
-        .text(' Valor Original:', { continued: true })
-        .font('normal')
-        .text(` ${formatNumber(cobr.fat.vOrig, 2)}`, { continued: true })
-        .font('negrito')
-        .text(' Valor Desconto:', { continued: true })
-        .font('normal')
-        .text(` ${formatNumber(cobr.fat.vDesc, 2)}`, { continued: true })
-        .font('negrito')
-        .text(' Valor Líquido:', { continued: true })
-        .font('normal')
-        .text(` ${formatNumber(cobr.fat.vLiq, 2)}.`, { continued: true });
-    }
+        .lineWidth(0.5)
+        .rect(cellX, tableTop, colWidth, boxHeight)
+        .stroke();
 
-    if (cobr.dup !== undefined) {
-      cobr.dup.forEach((dup, index) => {
-        doc.font('negrito').text(' Duplicata:', { continued: true }).font('normal').text(` ${dup.nDup}`, { continued: true });
+      // 3.3) Cabeçalhos alinhados à esquerda e valores à direita
+      const lines = [
+        { label: 'Núm.', value: dup.nDup },
+        { label: 'Venc.', value: format(parseISO(dup.dVenc), 'dd/MM/yyyy') },
+        { label: 'Valor', value: `R$${formatNumber(dup.vDup, 2)}` }
+      ];
+
+      lines.forEach((line, rowIndex) => {
+        const textY = tableTop + padding + rowHeight * rowIndex + (rowIndex === 0 ? 0 : 0);
+        // label
         doc
           .font('negrito')
-          .text(' Valor:', { continued: true })
-          .font('normal')
-          .text(` ${formatNumber(dup.vDup, 2)}`, { continued: true });
-        doc
-          .font('negrito')
-          .text(' Vencimento:', { continued: true })
-          .font('normal')
-          .text(` ${format(parseISO(dup.dVenc), 'dd/MM/yyyy')}`, { continued: true });
+          .fontSize(fontSize)
+          .text(line.label, cellX + padding, textY, {
+            width: colWidth - padding * 2,
+            align: 'left',
+            lineBreak: false
+          });
 
-        if (index === cobr.dup.length - 1) {
-          doc.text('');
-        }
+        // valor
+        doc
+          .font('normal')
+          .fontSize(fontSize)
+          .text(line.value, cellX + padding, textY, {
+            width: colWidth - padding * 2,
+            align: 'right',
+            lineBreak: false
+          });
       });
-    }
+    });
 
-    linhaHorizontal({ x1: 0, x2: 0, y: y + 20, doc, ajusteX, ajusteY, margemDireita, margemEsquerda, margemTopo });
-    linhaHorizontal({ x1: 0, x2: 0, y: doc.y + 6, doc, ajusteX, ajusteY, margemDireita, margemEsquerda, margemTopo });
-    linhaVertical({ y1: y + 20, y2: doc.y + 6, x: 0, doc, ajusteX, ajusteY, margemEsquerda, margemTopo });
-    linhaVertical({ y1: y + 20, y2: doc.y + 6, x: larguraDoFormulario, doc, ajusteX, ajusteY, margemEsquerda, margemTopo });
+    // 3.4) Atualiza posição Y para próximo conteúdo
+    doc.y = tableTop + boxHeight + padding;
   }
 
   return doc.y;
