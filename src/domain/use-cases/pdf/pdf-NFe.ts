@@ -1,7 +1,6 @@
 import PDFKit from 'pdfkit';
 import { gerarItens } from '../../../application/helpers/generate-pdf/nfe/gerar-itens';
 import { italico } from '../../../application/helpers/generate-pdf/nfe/italico';
-import { loadFonts } from '../../../application/helpers/generate-pdf/nfe/load-fontes';
 import { optionsDocNFe } from '../../../application/helpers/generate-pdf/nfe/options-doc';
 import type { NFeProc, OpcoesPDF } from '../../../types';
 
@@ -14,7 +13,11 @@ export async function pdfNFe(nf: NFeProc, opcoes?: OpcoesPDF): Promise<PDFKit.PD
   const ajusteY = 0;
   const ajusteX = 0;
   const doc = new PDFKit(optionsDocNFe);
-  loadFonts(doc);
+
+  doc.registerFont('normal', 'Times-Roman');
+  doc.registerFont('negrito', 'Times-Bold');
+  doc.registerFont('italico', 'Times-Italic');
+  doc.registerFont('negrito-italico', 'Times-BoldItalic');
 
   await gerarItens({
     ajusteX,
