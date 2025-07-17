@@ -1,46 +1,21 @@
 // src/application/helpers/generate-pdf/nfe/load-fontes.ts
-import path from 'path';
-import type PDFKit from 'pdfkit';
 
+/**
+ * Mapeia nomes lógicos para fontes padrão do PDFKit (Times-Roman).
+ */
 export function loadFonts(doc: PDFKit.PDFDocument): void {
-  // process.cwd() → /user/projeto/sgi-app
-  const fontDir = path.join(process.cwd(), 'fontes');
-
-  doc.registerFont(
-    'normal',
-    path.join(fontDir, 'Times New Roman.ttf')
-  );
-  doc.registerFont(
-    'negrito',
-    path.join(fontDir, 'Times New Roman Bold.ttf')
-  );
-  doc.registerFont(
-    'italico',
-    path.join(fontDir, 'Times New Roman Italic.ttf')
-  );
-  doc.registerFont(
-    'negrito-italico',
-    path.join(fontDir, 'Times New Roman Bold Italic.ttf')
-  );
+  doc.registerFont('normal', 'Times-Roman');
+  doc.registerFont('negrito', 'Times-Bold');
+  doc.registerFont('italico', 'Times-Italic');
+  doc.registerFont('negrito-italico', 'Times-BoldItalic');
 }
 
+/**
+ * Para NFC-e, usa Helvetica como alternativa leve e moderna.
+ */
 export function loadFontsNFCe(doc: PDFKit.PDFDocument): void {
-  const fontDir = path.join(process.cwd(), 'fontes', 'roboto-condensed');
-
-  doc.registerFont(
-    'normal',
-    path.join(fontDir, 'RobotoCondensed-Regular.ttf')
-  );
-  doc.registerFont(
-    'negrito',
-    path.join(fontDir, 'RobotoCondensed-Bold.ttf')
-  );
-  doc.registerFont(
-    'italico',
-    path.join(fontDir, 'RobotoCondensed-Italic.ttf')
-  );
-  doc.registerFont(
-    'negrito-italico',
-    path.join(fontDir, 'RobotoCondensed-BoldItalic.ttf')
-  );
+  doc.registerFont('normal', 'Helvetica');
+  doc.registerFont('negrito', 'Helvetica-Bold');
+  doc.registerFont('italico', 'Helvetica-Oblique');
+  doc.registerFont('negrito-italico', 'Helvetica-BoldOblique');
 }
