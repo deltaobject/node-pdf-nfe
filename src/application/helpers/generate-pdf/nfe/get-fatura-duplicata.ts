@@ -14,10 +14,8 @@ export function getFaturaDuplicata({
   doc,
   ajusteX,
   ajusteY,
-  margemDireita,
   margemEsquerda,
   margemTopo,
-  larguraDoFormulario,
   cobr
 }: GeneratePdf.InputFaturaDuplicata): number {
   if (!cobr || Object.keys(cobr).length === 0) {
